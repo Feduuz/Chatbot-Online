@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ChatBOT Financiero</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+
+    <body>
+        <div class="card-container">
+        <div class="card-header">
+            <div class="img-avatar"></div>
+            <div class="text-chat">ChatBOT Inversor</div>
+        </div>
+        <div class="card-body">
+            <div class="messages-container">
+                <div class="message-box left">
+                    <p>¡Hola!, ¿En qué puedo ayudarte?</p>
+                </div>
+                <div class="message-box right">
+                    <p>Buenas, ya te digo...</p>
+                </div>
+            </div>
+            <div class="message-input">
+            <form>
+                <textarea placeholder="Escriba acá..." class="message-send"></textarea>
+                <button type="submit" class="button-send">Enviar</button>
+            </form>
+            </div>
+        </div>
+        </div>
+
+        <script>
+            document.querySelector(".button-send").addEventListener("click", function(e) {
+                e.preventDefault();
+                const message = document.querySelector(".message-send").value;
+
+                fetch("/send_message", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.querySelector(".messages-container");
+
+                    const userBox = document.createElement("div");
+                    userBox.className = "message-box right";
+                    userBox.innerHTML = `<p>${message}</p>`;
+                    container.appendChild(userBox);
+
+                    const botBox = document.createElement("div");
+                    botBox.className = "message-box left";
+                    botBox.innerHTML = `<p>${data.response}</p>`;
+                    container.appendChild(botBox);
+
+                    document.querySelector(".message-send").value = "";
+
+                    container.scrollTop = container.scrollHeight;
+                });
+            });
+        </script>
+    </body>
+    
+</html>
