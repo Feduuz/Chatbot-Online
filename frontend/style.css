@@ -62,8 +62,9 @@ body {
 .message-box {
   padding: 10px;
   border-radius: 10px;
-  max-width: 70%;
+  max-width: 70%;  
 }
+
 
 .message-box.left {
   background-color: #f1f1f1;
@@ -77,6 +78,9 @@ body {
   color: #fff;
   font-size: 15px;
   align-self: flex-end;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .message-input {

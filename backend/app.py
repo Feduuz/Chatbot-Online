@@ -1,12 +1,19 @@
 from flask import Flask, render_template_string, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
+from nlp.responder import obtener_datos_financieros
+from nlp.processor import procesar_texto
+from data.financial_api import (
+    obtener_top5_criptos,
+    obtener_listado_criptos,
+    obtener_tasas_bcra,
+    obtener_top5_acciones,
+    obtener_listado_acciones
+)
 
 # CONFIGURACIÓN DE FLASK Y BASE DE DATOS
 app = Flask(__name__, template_folder="../frontend", static_folder="../frontend")
-
-# Configuración de conexión a MySQL
-# CREATE DATABASE chatbot_finanzas CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin@localhost/chatbot_finanzas'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -21,6 +28,15 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(100))
     chat_id = db.Column(db.String(50), unique=True)
     preferencias = db.Column(db.String(200))
+    creado_en = db.Column(db.DateTime, default=datetime.now)
+
+class Mensaje(db.Model):
+    __tablename__ = 'mensajes'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'))
+    texto = db.Column(db.Text)
+    respuesta = db.Column(db.Text)
+    fecha = db.Column(db.DateTime, default=datetime.now)
 
 
 # RUTA PRINCIPAL
@@ -35,29 +51,24 @@ def home():
 # RUTA PARA RECIBIR MENSAJES DEL CHAT
 @app.route("/send_message", methods=["POST"])
 def send_message():
-    """
-    Recibe el mensaje del usuario (vía fetch/AJAX) y devuelve la respuesta del chatbot.
-    """
-    user_message = request.json.get("message")
-    print(" Mensaje recibido:", user_message)
-    bot_response = procesar_mensaje_finanzas(user_message)
-    return jsonify({"response": bot_response})
+    data = request.get_json()
+    mensaje_usuario = data.get("message", "").strip()
 
+    if not mensaje_usuario:
+        return jsonify({"response": "⚠️ No recibí ningún mensaje, escribí algo por favor."})
 
-# LÓGICA BÁSICA DEL CHATBOT FINANCIERO
-def procesar_mensaje_finanzas(mensaje):
-    mensaje = mensaje.lower()
+    print(f"💬 Usuario: {mensaje_usuario}")
 
-    if "hola" in mensaje:
-        return "¡Hola! Soy tu asistente financiero 🤖. ¿Querés saber sobre acciones, criptomonedas o plazos fijos?"
-    elif "bitcoin" in mensaje or "btc" in mensaje:
-        return "Actualmente el Bitcoin ronda los $67,000 (valor aproximado)."
-    elif "acciones" in mensaje:
-        return "Podés consultar el estado de acciones, CEDEARs o índices. Pronto te mostraré datos en tiempo real 📈."
-    elif "plazo fijo" in mensaje:
-        return "La tasa promedio del plazo fijo ronda el 70% TNA. ¿Querés que calcule tus ganancias?"
-    else:
-        return "No entendí muy bien 🤔. Probá preguntarme por criptomonedas, acciones o tasas de inversión."
+    # Procesamiento NLP
+    intencion = procesar_texto(mensaje_usuario)
+    respuesta_bot = obtener_datos_financieros(intencion, mensaje_usuario)
+
+    # Guardar en la BD
+    nuevo_msg = Mensaje(texto=mensaje_usuario, respuesta=respuesta_bot)
+    db.session.add(nuevo_msg)
+    db.session.commit()
+
+    return jsonify({"response": respuesta_bot})
 
 
 # INICIO DEL SERVIDOR
