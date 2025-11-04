@@ -1,43 +1,76 @@
 from data.financial_api import (
     obtener_top5_criptos,
     obtener_listado_criptos,
-    obtener_tasas_bcra,
+    obtener_tasas_plazofijo,
     obtener_top5_acciones,
-    obtener_listado_acciones
+    obtener_listado_acciones,
+    obtener_cuentas_remuneradas
 )
 
 def obtener_datos_financieros(intencion, mensaje):
     mensaje = mensaje.lower()
 
     if intencion == "saludo":
-        return "¡Hola! Soy tu asistente financiero 🤖. ¿Querés saber sobre criptomonedas, acciones o plazos fijos?"
+        return "Un gusto. ¿Sobre qué tema te gustaría saber más?"
 
     elif intencion == "criptomoneda":
         top5 = obtener_top5_criptos()
-        respuesta = "💰 Las 5 criptomonedas con mayor capitalización son:\n\n"
-        respuesta += "\n".join(top5)
-        respuesta += "\n\n¿Te interesa saber sobre alguna criptomoneda diferente? (Sí/No)"
+        respuesta = "<b>💰 Las 5 criptomonedas con mayor capitalización son:</b><br><br>"
+        for i, cripto in enumerate(top5, start=1):
+            respuesta += f"{i}° {cripto}<br>"
+
+        respuesta += "<br><hr><br>"
         return respuesta
+
 
     elif intencion == "acciones":
         top5 = obtener_top5_acciones()
-        respuesta = "📈 Las 5 acciones con mayor capitalización son:\n\n"
-        respuesta += "\n".join(top5)
-        respuesta += "\n\n¿Querés saber sobre alguna acción diferente? (Sí/No)"
+        respuesta = "<b>📈 Las 5 acciones con mayor capitalización son:</b><br><br>"
+        for i, accion in enumerate(top5, start=1):
+            respuesta += f"{i}° {accion}<br>"
+
+        respuesta += "<br><hr><br>"
         return respuesta
 
+
     elif intencion == "plazo_fijo":
-        tasas = obtener_tasas_bcra()
-        if not tasas:
+        top_clientes, top_no_clientes = obtener_tasas_plazofijo()
+        if not top_clientes and not top_no_clientes:
             return "⚠️ No pude obtener las tasas de plazo fijo en este momento. Probá más tarde."
-        top5 = tasas[:5]
-        respuesta = "🏦 Las 5 entidades con la tasa de plazo fijo más alta son:\n\n"
-        for t in top5:
-            respuesta += f"{t['banco']}: {t['tasa']:.2f}%\n"
+
+        respuesta = "<b>🏦 Top 5 Tasas de Plazo Fijo más altas (según el BCRA):</b><br><br>"
+
+        if top_clientes:
+            respuesta += "<b>👤 **Para Clientes:**</b><br>"
+            for i, t in enumerate(top_clientes, start=1):
+                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']:.2f}%<br>"
+
+        respuesta += "<br><hr><br>"
+
+        if top_no_clientes:
+            respuesta += "<b>🚫 **Para No Clientes:**</b><br>"
+            for i, t in enumerate(top_no_clientes, start=1):
+                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']:.2f}%<br>"
+
+        return respuesta
+
+    elif intencion == "cuenta_remunerada":
+        cuentas = obtener_cuentas_remuneradas()
+        if not cuentas:
+            return "⚠️ No pude obtener los datos de cuentas remuneradas en este momento."
+
+        respuesta = "<b>💵 Top 5 Cuentas Remuneradas (según ArgentinaDatos):</b><br><br>"
+        for i, c in enumerate(cuentas, start=1):
+            respuesta += f"{i}° <b>{c['entidad']}</b><br>"
+            respuesta += f"🏦 TNA: {c['tna']}%<br>"
+            tope = c['tope'] if c['tope'] not in [None, "None", "", 0] else " --- "
+            respuesta += f"💰 Tope: ${tope}<br><br>"
+
+
         return respuesta
 
     elif intencion == "desconocido":
-        return "No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones o plazos fijos."
+        return "No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones, cuentas remuneradas o plazos fijos."
 
     else:
         return "Todavía no tengo información para esa consulta, pero pronto la agregaré 📊."

@@ -13,35 +13,42 @@ headers = {
     "x-cg-demo-api-key": COINGECKO_API_KEY
 }
 
-def obtener_tasas_bcra():
-    url = "https://www.bcra.gob.ar/BCRAyVos/Plazos_fijos_online.asp"
+def obtener_tasas_plazofijo():
+    url = "https://api.argentinadatos.com/v1/finanzas/tasas/plazoFijo"
+
     try:
         response = requests.get(url, verify=certifi.where(), timeout=10)
+        print(f"📄 Contenido recibido: {response.text}")
         response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Error al acceder a la página del BCRA: {e}")
-        return []
+        data = response.json()
 
-    soup = BeautifulSoup(response.text, 'html.parser')
-    tabla = soup.find('table')
-    if not tabla:
-        print("No se encontró la tabla de tasas.")
-        return []
+        if not isinstance(data, list):
+            print("⚠️ La respuesta no es una lista. Estructura inesperada.")
+            return [], []
 
-    tasas = []
-    for fila in tabla.find_all('tr')[1:]:
-        columnas = fila.find_all('td')
-        if len(columnas) >= 3:
-            banco = columnas[0].get_text(strip=True)
-            tasa_raw = columnas[2].get_text(strip=True).replace('%', '').replace(',', '.')
-            try:
-                tasa_float = float(tasa_raw)
-                tasas.append({'banco': banco, 'tasa': tasa_float})
-            except ValueError:
-                continue
+        # Filtrar y ordenar tasas de clientes
+        clientes = [item for item in data if isinstance(item.get("tnaClientes"), (int, float))]
+        clientes = sorted(clientes, key=lambda x: x["tnaClientes"], reverse=True)
 
-    tasas_ordenadas = sorted(tasas, key=lambda x: x['tasa'], reverse=True)
-    return tasas_ordenadas
+        no_clientes = [item for item in data if isinstance(item.get("tnaNoClientes"), (int, float))]
+        no_clientes = sorted(no_clientes, key=lambda x: x["tnaNoClientes"], reverse=True)
+
+        top_clientes = [
+            {"banco": item["entidad"], "tasa": item["tnaClientes"]}
+            for item in clientes[:5]
+            if item.get("tnaClientes") is not None
+        ]
+        top_no_clientes = [
+            {"banco": item["entidad"], "tasa": item["tnaNoClientes"]}
+            for item in no_clientes[:5]
+            if item.get("tnaNoClientes") is not None
+        ]
+
+        return top_clientes, top_no_clientes
+
+    except Exception as e:
+        print(f"⚠️ Error al obtener tasas de ArgentinaDatos: {e}")
+        return [], []
 
 def obtener_top5_acciones():
     tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
@@ -49,7 +56,7 @@ def obtener_top5_acciones():
     for t in tickers:
         import yfinance as yf
         precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
-        resultados.append(f"{t}: USD {precio:.2f}")
+        resultados.append(f"{t}: USD ${precio:.2f}")
     return resultados
 
 def obtener_listado_acciones():
@@ -59,7 +66,7 @@ def obtener_listado_acciones():
     import yfinance as yf
     for t in tickers_sorted:
         precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
-        resultados.append(f"{t}: USD {precio:.2f}")
+        resultados.append(f"{t}: USD ${precio:.2f}")
     return resultados
 
 def obtener_top5_criptos():
@@ -79,7 +86,7 @@ def obtener_top5_criptos():
 
         criptos = []
         for coin in data:
-            criptos.append(f"{coin['name']} ({coin['symbol'].upper()}): USD {coin['current_price']:.2f}")
+            criptos.append(f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}")
 
         return criptos
     except Exception as e:
@@ -110,3 +117,33 @@ def obtener_listado_criptos():
         return criptos
     except Exception as e:
         return [f"Error al obtener listado de criptomonedas: {e}"]
+    
+def obtener_cuentas_remuneradas():
+    url = "https://api.argentinadatos.com/v1/finanzas/fci/otros/ultimo"
+
+    try:
+        response = requests.get(url, verify=certifi.where(), timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if not isinstance(data, list) or len(data) == 0:
+            return []
+
+        cuentas = []
+        for item in data[:5]:  # top 5
+            entidad = item.get("fondo", "Entidad desconocida")
+            tna = item.get("tna", 0)
+            tope = item.get("tope", "Sin tope")
+
+            cuentas.append({
+                "entidad": entidad,
+                "tna": tna,
+                "tope": tope
+            })
+
+        return cuentas
+
+    except Exception as e:
+        print(f"⚠️ Error al obtener cuentas remuneradas: {e}")
+        return []
+
