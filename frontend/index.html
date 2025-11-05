@@ -17,7 +17,7 @@
             <div class="messages-container">
                 <div class="message-box left">
                     <p>¡Hola! Soy tu asistente financiero 🤖.</p>
-                    <p>Mencioname sobre qué te gustaría enterarte: Criptomonedas, acciones, cuentas remuneradas o plazos fijos.</p>
+                    <p>Mencioname sobre qué te gustaría enterarte: Criptomonedas, acciones, cuentas remuneradas, dólar o plazos fijos.</p>
                 </div>
             </div>
             <div class="message-input">
@@ -60,6 +60,16 @@
                     container.scrollTop = container.scrollHeight;
                 });
             });
+
+                const inputField = document.querySelector(".message-send");
+                const sendButton = document.querySelector(".button-send");
+
+                inputField.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendButton.click();
+                    }
+                });
         </script>
     </body>
     

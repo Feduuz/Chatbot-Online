@@ -3,6 +3,7 @@ import certifi
 import os
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from datetime import datetime
 import yfinance as yf
 
 load_dotenv()
@@ -147,3 +148,44 @@ def obtener_cuentas_remuneradas():
         print(f"⚠️ Error al obtener cuentas remuneradas: {e}")
         return []
 
+def obtener_cotizaciones_dolar():
+    url = "https://dolarapi.com/v1/ambito/dolares"
+    try:
+        response = requests.get(url, verify=certifi.where(), timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        cotizaciones = []
+        for d in data:
+            nombre = d.get("nombre", "Desconocido")
+            compra = d.get("compra")
+            venta = d.get("venta")
+            fecha = d.get("fechaActualizacion", "")
+
+            # 🕒 Formatear la fecha (de 2025-11-04T15:05:00Z → 2025-11-04, 15:05:00)
+            try:
+                fecha_dt = datetime.fromisoformat(fecha.replace("Z", "+00:00"))
+                fecha_formateada = fecha_dt.strftime("%Y-%m-%d, %H:%M:%S")
+            except Exception:
+                fecha_formateada = fecha
+
+            # 💳 Si es Dólar Tarjeta, no mostrar "compra"
+            if "tarjeta" in nombre.lower():
+                compra = "---"
+
+            cotizaciones.append({
+                "nombre": nombre,
+                "compra": compra,
+                "venta": venta,
+                "fechaActualizacion": fecha_formateada
+            })
+
+        return cotizaciones
+
+    except Exception as e:
+        print(f"⚠️ Error al obtener cotizaciones del dólar: {e}")
+        return []
+
+    except Exception as e:
+        print(f"⚠️ Error al obtener cotizaciones del dólar: {e}")
+        return []

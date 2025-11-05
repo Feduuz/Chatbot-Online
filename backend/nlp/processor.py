@@ -11,5 +11,7 @@ def procesar_texto(mensaje):
         return "saludo"
     elif "cuenta remunerada" in mensaje or "cuentas remuneradas" in mensaje:
         return "cuenta_remunerada"
+    elif any(palabra in mensaje for palabra in ["dolar", "dólar", "usd"]):
+        return "dolar"
     else:
         return "desconocido"

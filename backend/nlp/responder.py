@@ -4,7 +4,8 @@ from data.financial_api import (
     obtener_tasas_plazofijo,
     obtener_top5_acciones,
     obtener_listado_acciones,
-    obtener_cuentas_remuneradas
+    obtener_cuentas_remuneradas,
+    obtener_cotizaciones_dolar
 )
 
 def obtener_datos_financieros(intencion, mensaje):
@@ -19,7 +20,6 @@ def obtener_datos_financieros(intencion, mensaje):
         for i, cripto in enumerate(top5, start=1):
             respuesta += f"{i}° {cripto}<br>"
 
-        respuesta += "<br><hr><br>"
         return respuesta
 
 
@@ -29,7 +29,6 @@ def obtener_datos_financieros(intencion, mensaje):
         for i, accion in enumerate(top5, start=1):
             respuesta += f"{i}° {accion}<br>"
 
-        respuesta += "<br><hr><br>"
         return respuesta
 
 
@@ -68,6 +67,22 @@ def obtener_datos_financieros(intencion, mensaje):
 
 
         return respuesta
+
+    elif intencion == "dolar":
+        cotizaciones = obtener_cotizaciones_dolar()
+        if not cotizaciones:
+            return "⚠️ No pude obtener las cotizaciones del dólar en este momento."
+
+        respuesta = "<b>💵 Cotizaciones del Dólar (Fuente Ámbito Financiero):</b><br><br>"
+
+        for c in cotizaciones:
+            respuesta += f"<b>Dólar {c['nombre']}</b><br>"
+            respuesta += f"🟢 Compra: ${c['compra']}<br>"
+            respuesta += f"🔴 Venta: ${c['venta']}<br>"
+            respuesta += f"🕒 Última actualización: {c['fechaActualizacion']}<br><br>"
+
+        return respuesta
+
 
     elif intencion == "desconocido":
         return "No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones, cuentas remuneradas o plazos fijos."
