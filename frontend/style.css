@@ -1,5 +1,7 @@
 body {
-  background-color: #e6e6e6;
+  background: url("./assets/fondoClaro.jpg") no-repeat center center fixed;
+  background-size: cover;
+  transition: background 0.5s ease, background-color 0.5s ease;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -7,6 +9,27 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
+
+body.dark-mode {
+  background: url("./assets/fondoOscuro.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  transition: background 0.5s ease;
+}
+
+body.dark-mode::before {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 
 .button-options {
   margin-top: 10px;
@@ -31,14 +54,14 @@ body {
 }
 
 .card-container {
-  background-color: #fff;
+  background-color: #ffffff85;
   border-radius: 15px;
   padding: 30px;
   margin: 20px;
   display: flex;
   flex-direction: column;
-  width: 45%;
-  max-height: 60%;
+  width: 60%;
+  max-height: 70%;
   overflow-y: auto;
 }
 
@@ -142,4 +165,95 @@ body {
 .message-input .button-send:hover {
   background-color: #f1f1f1;
   color: #333;
+}
+
+.main-header {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 100;
+}
+/* From Uiverse.io by cuzpq */ 
+.theme-checkbox {
+  --toggle-size: 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 6.25em;
+  height: 3.125em;
+  background: -webkit-gradient(linear, left top, right top, color-stop(50%, #efefef), color-stop(50%, #2a2a2a)) no-repeat;
+  background: -o-linear-gradient(left, #efefef 50%, #2a2a2a 50%) no-repeat;
+  background: linear-gradient(to right, #efefefdb 50%, #2a2a2a 50%) no-repeat;
+  background-size: 205%;
+  background-position: 0;
+  -webkit-transition: 0.4s;
+  -o-transition: 0.4s;
+  transition: 0.4s;
+  border-radius: 99em;
+  position: relative;
+  cursor: pointer;
+  font-size: var(--toggle-size);
+}
+
+.theme-checkbox::before {
+  content: "";
+  width: 2.25em;
+  height: 2.25em;
+  position: absolute;
+  top: 0.438em;
+  left: 0.438em;
+  background: -webkit-gradient(linear, left top, right top, color-stop(50%, #efefef), color-stop(50%, #2a2a2a)) no-repeat;
+  background: -o-linear-gradient(left, #efefef 50%, #2a2a2a 50%) no-repeat;
+  background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+  background-size: 205%;
+  background-position: 100%;
+  border-radius: 50%;
+  -webkit-transition: 0.4s;
+  -o-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.theme-checkbox:checked::before {
+  left: calc(100% - 2.25em - 0.438em);
+  background-position: 0;
+}
+
+.theme-checkbox:checked {
+  background-position: 100%;
+}
+
+/* 🌙 MODO OSCURO */
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+body.dark-mode .card-container {
+  background-color: #1e1e1ed4;
+}
+
+body.dark-mode .card-header {
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode .text-chat {
+  color: #fff;
+}
+
+body.dark-mode .message-box.left {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+body.dark-mode .message-box.right {
+  background-color: #005fa3;
+}
+
+body.dark-mode .message-input .button-send {
+  background-color: #0078d4;
+  color: #fff;
+}
+
+body.dark-mode .message-input .button-send:hover {
+  background-color: #005fa3;
 }

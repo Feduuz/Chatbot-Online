@@ -8,6 +8,10 @@
     </head>
 
     <body>
+        <header class="main-header">
+            <input type="checkbox" class="theme-checkbox" id="theme-toggle">
+        </header>
+
         <div class="card-container">
         <div class="card-header">
             <div class="img-avatar"></div>
@@ -93,6 +97,23 @@
             sendMessageToBot(message);
         }
     });
+
+    const themeToggle = document.getElementById('theme-toggle');
+
+    themeToggle.addEventListener('change', () => {
+        document.body.classList.toggle('dark-mode', !themeToggle.checked);
+        localStorage.setItem('darkMode', themeToggle.checked ? 'disabled' : 'enabled');
+    });
+
+    // Cargar modo previo
+    const darkMode = localStorage.getItem('darkMode');
+    if (darkMode === 'enabled' || darkMode === null) {
+        document.body.classList.add('dark-mode');
+        themeToggle.checked = false;
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeToggle.checked = true;
+    }
 </script>
 
     </body>
