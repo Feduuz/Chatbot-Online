@@ -15,5 +15,7 @@ def procesar_texto(mensaje):
         return "dolar"
     elif any(palabra in mensaje for palabra in ["riesgo país", "riesgo pais", "riesgo"]):
         return "riesgo_pais"
+    elif any(palabra in mensaje for palabra in ["inflacion", "inflación", "ipc"]):
+        return "inflacion"
     else:
         return "desconocido"

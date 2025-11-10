@@ -29,6 +29,7 @@
                             <button class="option-btn">Dólar 💸</button>
                             <button class="option-btn">Riesgo País 📊</button>
                             <button class="option-btn">Plazo Fijo 🏦</button>
+                            <button class="option-btn">Inflación 📉</button>
                         </div>
                 </div>
             </div>
@@ -41,10 +42,43 @@
         </div>
         </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1"></script>
 <script>
+    // Inserta el mensaje del bot y ejecuta cualquier <script> embebido
+    function renderBotMessage(html) {
+        const container = document.querySelector(".messages-container");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message-box", "left");
+        messageDiv.innerHTML = html;
+        container.appendChild(messageDiv);
+
+        executeEmbeddedScripts(messageDiv);
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Ejecuta los scripts embebidos después de renderizar el HTML
+    function executeEmbeddedScripts(element) {
+        setTimeout(() => {
+            const scripts = element.querySelectorAll("script");
+            scripts.forEach((oldScript) => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+                oldScript.remove();
+            });
+        }, 100);
+    }
+
     function sendMessageToBot(message) {
         const container = document.querySelector(".messages-container");
 
+        // Mostrar el mensaje del usuario
         const userBox = document.createElement("div");
         userBox.className = "message-box right";
         userBox.innerHTML = `<p>${message}</p>`;
@@ -53,44 +87,42 @@
         // Llamada al backend Flask
         fetch("/send_message", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ message: message })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
         })
         .then(response => response.json())
         .then(data => {
-            const botBox = document.createElement("div");
-            botBox.className = "message-box left";
-            botBox.innerHTML = `<p>${data.response}</p>`;
-            container.appendChild(botBox);
-
-            container.scrollTop = container.scrollHeight;
+            // respuesta del bot
+            renderBotMessage(data.response);
+        })
+        .catch(err => {
+            console.error("Error al enviar mensaje:", err);
+            renderBotMessage("⚠️ Error al comunicarse con el servidor.");
         });
+
+        container.scrollTop = container.scrollHeight;
     }
 
+    // Botón enviar
     document.querySelector(".button-send").addEventListener("click", function(e) {
         e.preventDefault();
-        const messageInput = document.querySelector(".message-send");
-        const message = messageInput.value.trim();
+        const input = document.querySelector(".message-send");
+        const message = input.value.trim();
         if (!message) return;
 
         sendMessageToBot(message);
-        messageInput.value = "";
+        input.value = "";
     });
 
-    // Enviar mensaje al presionar Enter
     const inputField = document.querySelector(".message-send");
-    const sendButton = document.querySelector(".button-send");
-
     inputField.addEventListener("keydown", function(e) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            sendButton.click();
+            document.querySelector(".button-send").click();
         }
     });
 
-    // Detectar clics en los botones de opciones
+    // Detectar clics en botones de opciones del chat
     document.addEventListener("click", function(e) {
         if (e.target.classList.contains("option-btn")) {
             const message = e.target.textContent.split(" ")[0];
@@ -98,23 +130,25 @@
         }
     });
 
-    const themeToggle = document.getElementById('theme-toggle');
+    // Modo oscuro / claro
+    const themeToggle = document.getElementById("theme-toggle");
 
-    themeToggle.addEventListener('change', () => {
-        document.body.classList.toggle('dark-mode', !themeToggle.checked);
-        localStorage.setItem('darkMode', themeToggle.checked ? 'disabled' : 'enabled');
+    themeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("dark-mode", !themeToggle.checked);
+        localStorage.setItem("darkMode", themeToggle.checked ? "disabled" : "enabled");
     });
 
-    // Cargar modo previo
-    const darkMode = localStorage.getItem('darkMode');
-    if (darkMode === 'enabled' || darkMode === null) {
-        document.body.classList.add('dark-mode');
+    // Cargar modo guardado
+    const darkMode = localStorage.getItem("darkMode");
+    if (darkMode === "enabled" || darkMode === null) {
+        document.body.classList.add("dark-mode");
         themeToggle.checked = false;
     } else {
-        document.body.classList.remove('dark-mode');
+        document.body.classList.remove("dark-mode");
         themeToggle.checked = true;
     }
 </script>
+
 
     </body>
     
