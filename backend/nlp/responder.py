@@ -14,9 +14,17 @@ from data.financial_api import (
     obtener_indice_uva
 )
 
+def _agregar_boton_inicio(respuesta_actual):
+    return respuesta_actual + """
+        <div class='button-options'>
+            <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
+        </div>
+    """
+
 def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
     mensaje = mensaje.lower()
     entities = entities or {}
+    respuesta = ""
 
     if intencion == "saludo":
         return "Un gusto. ¿Sobre qué tema te gustaría saber más?"
@@ -27,16 +35,12 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         for i, cripto in enumerate(top5, start=1):
             respuesta += f"{i}° {cripto}<br>"
 
-        return respuesta
-
 
     elif intencion == "acciones":
         top5 = obtener_top5_acciones()
         respuesta = "<b>📈 Las 5 acciones con mayor capitalización son:</b><br><br>"
         for i, accion in enumerate(top5, start=1):
             respuesta += f"{i}° {accion}<br>"
-
-        return respuesta
 
 
     elif intencion == "plazo_fijo":
@@ -45,7 +49,6 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             return "⚠️ No pude obtener las tasas de plazo fijo en este momento. Probá más tarde."
 
         respuesta = "<b>🏦 Top 5 Tasas de Plazo Fijo más altas (según el BCRA):</b><br><br>"
-
         if top_clientes:
             respuesta += "<b>👤 **Para Clientes:**</b><br>"
             for i, t in enumerate(top_clientes, start=1):
@@ -58,7 +61,6 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             for i, t in enumerate(top_no_clientes, start=1):
                 respuesta += f"{i}° {t['banco']}: TNA {t['tasa']:.2f}%<br>"
 
-        return respuesta
 
     elif intencion == "cuenta_remunerada":
         cuentas = obtener_cuentas_remuneradas()
@@ -72,7 +74,6 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             tope = c['tope'] if c['tope'] not in [None, "None", "", 0] else " --- "
             respuesta += f"💰 Tope: ${tope}<br><br>"
 
-        return respuesta
 
     elif intencion == "dolar":
         cotizaciones = obtener_cotizaciones_dolar()
@@ -87,7 +88,6 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             respuesta += f"🔴 Venta: ${c['venta']}<br>"
             respuesta += f"🕒 Última actualización: {c['fechaActualizacion']}<br><br>"
 
-        return respuesta
 
     elif intencion == "riesgo_pais":
         datos = obtener_riesgo_pais()
@@ -101,11 +101,9 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         respuesta += """
         <div class='button-options'>
             <button class='option-btn' data-intent='Historico'>Histórico 📈</button>
-            <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
         </div>
         """
 
-        return respuesta
 
     elif intencion == "riesgo_pais_historico":
         datos = obtener_riesgo_pais()
@@ -175,13 +173,8 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
                 }}
             }});
         </script>
-
-        <div class='button-options'>
-            <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
-        </div>
         """
 
-        return respuesta
 
     elif intencion == "inflacion":
         fechas, valores, ultimo = obtener_indice_inflacion()
@@ -251,11 +244,9 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         </script>
         <div class='button-options'>
             <button class='option-btn' data-intent='Interanual'>Inflación Interanual 📅</button>
-            <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
         </div>          
         """
 
-        return respuesta
 
     elif intencion == "inflacion interanual" or "interanual" in mensaje.lower():
         fechas, valores, ultimo = obtener_indice_inflacion_interanual()
@@ -324,13 +315,7 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             }});
         </script>
         """
-        respuesta += """
-        <div class='button-options'>
-            <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
-        </div>
-        """
 
-        return respuesta
 
     elif intencion == "uva":
         fechas, valores, ultimo = obtener_indice_uva()
@@ -399,16 +384,10 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             }});
         </script>
         """
-        respuesta += """
-        <div class='button-options'>
-            <button class='option-btn' data-intent='inicio'>Inicio 🏠</button>
-        </div>
-        """
 
-        return respuesta
 
     elif intencion == "inicio" or "inicios" in mensaje:
-        respuesta = """
+        respuesta = f"""
         <b>🏠 Menú principal</b><br><br>
         Seleccioná una categoría para explorar:<br><br>
         <div class='button-options'>
@@ -425,7 +404,12 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         return respuesta
 
     elif intencion == "desconocido":
-        return "No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones, cuentas remuneradas o plazos fijos."
+        return _agregar_boton_inicio("No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones, cuentas remuneradas o plazos fijos.")
 
     else:
-        return "Todavía no tengo información para esa consulta, pero pronto la agregaré 📊."
+        return _agregar_boton_inicio("Todavía no tengo información para esa consulta, pero pronto la agregaré 📊.")
+    
+    if respuesta and intencion != "saludo":
+        respuesta = _agregar_boton_inicio(respuesta)
+        
+    return respuesta
