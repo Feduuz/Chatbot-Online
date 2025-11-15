@@ -14,8 +14,9 @@ from data.financial_api import (
     obtener_indice_uva
 )
 
-def obtener_datos_financieros(intencion, mensaje):
+def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
     mensaje = mensaje.lower()
+    entities = entities or {}
 
     if intencion == "saludo":
         return "Un gusto. ¿Sobre qué tema te gustaría saber más?"
@@ -119,14 +120,14 @@ def obtener_datos_financieros(intencion, mensaje):
         respuesta += "📈 Evolución histórica:<br>"
         respuesta += "<canvas id='riesgoPaisChart' width='900' height='350'></canvas>"
 
-        # Gráfico JS embebido
         respuesta += f"""
+
         <script>
             if (!Chart.registry.plugins.get('zoom')) {{
                 Chart.register(window['chartjs-plugin-zoom']);
             }}
-            const ctx3 = document.getElementById('riesgoPaisChart').getContext('2d');
 
+            const ctx3 = document.getElementById('riesgoPaisChart').getContext('2d');
             window.riesgoPaisChart = new Chart(ctx3, {{
                 type: 'line',
                 data: {{
@@ -194,10 +195,12 @@ def obtener_datos_financieros(intencion, mensaje):
         respuesta += "<canvas id='inflacionChart' width='900' height='350'></canvas>"
 
         respuesta += f"""
+
         <script>
             if (!Chart.registry.plugins.get('zoom')) {{
                 Chart.register(window['chartjs-plugin-zoom']);
             }}
+
             const ctx = document.getElementById('inflacionChart').getContext('2d');
             new Chart(ctx, {{
                 type: 'line',
@@ -244,13 +247,14 @@ def obtener_datos_financieros(intencion, mensaje):
                         }}
                     }}
                 }}
-            }});         
+            }});        
         </script>
         <div class='button-options'>
             <button class='option-btn' data-intent='Interanual'>Inflación Interanual 📅</button>
             <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
-        </div>           
+        </div>          
         """
+
         return respuesta
 
     elif intencion == "inflacion interanual" or "interanual" in mensaje.lower():
@@ -265,10 +269,12 @@ def obtener_datos_financieros(intencion, mensaje):
         respuesta += "<canvas id='inflacionInteranualChart' width='900' height='350'></canvas>"
 
         respuesta += f"""
+
         <script>
             if (!Chart.registry.plugins.get('zoom')) {{
                 Chart.register(window['chartjs-plugin-zoom']);
             }}
+
             const ctx2 = document.getElementById('inflacionInteranualChart').getContext('2d');
             new Chart(ctx2, {{
                 type: 'line',
@@ -318,12 +324,12 @@ def obtener_datos_financieros(intencion, mensaje):
             }});
         </script>
         """
-
         respuesta += """
         <div class='button-options'>
             <button class='option-btn' data-intent='Inicio'>Inicio 🏠</button>
         </div>
         """
+
         return respuesta
 
     elif intencion == "uva":
@@ -338,10 +344,12 @@ def obtener_datos_financieros(intencion, mensaje):
         respuesta += "<canvas id='uvaChart' width='900' height='350'></canvas>"
 
         respuesta += f"""
+
         <script>
             if (!Chart.registry.plugins.get('zoom')) {{
                 Chart.register(window['chartjs-plugin-zoom']);
             }}
+
             const ctxUVA = document.getElementById('uvaChart').getContext('2d');
             new Chart(ctxUVA, {{
                 type: 'line',
@@ -391,12 +399,12 @@ def obtener_datos_financieros(intencion, mensaje):
             }});
         </script>
         """
-
         respuesta += """
         <div class='button-options'>
             <button class='option-btn' data-intent='inicio'>Inicio 🏠</button>
         </div>
         """
+
         return respuesta
 
     elif intencion == "inicio" or "inicios" in mensaje:

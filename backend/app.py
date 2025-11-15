@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template_string, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
@@ -22,6 +22,7 @@ from data.financial_api import (
 app = Flask(__name__, template_folder="../frontend", static_folder="../frontend")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin@localhost/chatbot_finanzas'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "admin")
 
 # Inicialización del ORM
 db = SQLAlchemy(app)
@@ -65,9 +66,16 @@ def send_message():
 
     print(f"💬 Usuario: {mensaje_usuario}")
 
+    user_context = session.get("chat_context", {"last_intent": None, "entities": {}, "history": []})
+
     # Procesamiento NLP
-    intencion = procesar_texto(mensaje_usuario)
-    respuesta_bot = obtener_datos_financieros(intencion, mensaje_usuario)
+    intencion, entities = procesar_texto(mensaje_usuario, context=user_context)
+    respuesta_bot = obtener_datos_financieros(intencion, mensaje_usuario, context=user_context, entities=entities)
+
+    user_context["last_intent"] = intencion
+    user_context["entities"] = entities
+    user_context["history"].append({"user": mensaje_usuario, "bot": respuesta_bot})
+    session["chat_context"] = user_context
 
     # Guardar en la BD
     nuevo_msg = Mensaje(texto=mensaje_usuario, respuesta=respuesta_bot)
