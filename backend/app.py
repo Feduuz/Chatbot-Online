@@ -15,7 +15,8 @@ from data.financial_api import (
     obtener_riesgo_pais,
     obtener_riesgo_pais_historico,
     obtener_indice_inflacion,
-    obtener_indice_inflacion_interanual
+    obtener_indice_inflacion_interanual,
+    obtener_indice_uva
 )
 
 # CONFIGURACIÓN DE FLASK Y BASE DE DATOS
