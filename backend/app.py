@@ -71,11 +71,15 @@ def send_message():
 
     # Procesamiento NLP
     intencion, entities = procesar_texto(mensaje_usuario, context=user_context)
-    respuesta_bot = obtener_datos_financieros(intencion, mensaje_usuario, context=user_context, entities=entities)
+    if intencion == "desconocido":
+        from nlp.ollama_client import consultar_ollama
+        respuesta_bot = consultar_ollama(mensaje_usuario)
+    else:
+        respuesta_bot = obtener_datos_financieros(intencion, mensaje_usuario, context=user_context, entities=entities)
+
 
     user_context["last_intent"] = intencion
     user_context["entities"] = entities
-    user_context["history"].append({"user": mensaje_usuario, "bot": respuesta_bot})
     session["chat_context"] = user_context
 
     # Guardar en la BD

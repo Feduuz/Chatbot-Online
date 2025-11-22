@@ -404,8 +404,10 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         return respuesta
 
     elif intencion == "desconocido":
-        return _agregar_boton_inicio("No entendí muy bien 🤔. Probá preguntarme sobre criptomonedas, acciones, cuentas remuneradas o plazos fijos.")
-
+        from nlp.ollama_client import consultar_ollama
+        respuesta_llm = consultar_ollama(mensaje)
+        return _agregar_boton_inicio(respuesta_llm)
+    
     else:
         return _agregar_boton_inicio("Todavía no tengo información para esa consulta, pero pronto la agregaré 📊.")
     

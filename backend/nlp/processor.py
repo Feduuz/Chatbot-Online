@@ -1,3 +1,4 @@
+import re
 import spacy
 from difflib import get_close_matches
 
@@ -18,6 +19,12 @@ INTENT_KEYWORDS = {
     "uva": ["uva", "valor uva", "índice uva", "indice uva"],
     "inicio": ["inicio", "menu", "menú", "volver"]
 }
+
+def limpiar_texto(texto):
+    # Eliminar emojis y símbolos no alfabéticos
+    texto = re.sub(r"[^\w\sáéíóúñü]", " ", texto)
+    texto = re.sub(r"\s+", " ", texto)
+    return texto.strip().lower()
 
 def _keyword_intent(mensaje):
     texto = mensaje.lower()
@@ -44,7 +51,8 @@ def procesar_texto(mensaje, context=None):
     if not mensaje:
         return "desconocido", {}
 
-    doc = nlp(mensaje)
+    mensaje_limpio = limpiar_texto(mensaje)
+    doc = nlp(mensaje_limpio)
     entities = {}
 
     for ent in doc.ents:
@@ -66,14 +74,9 @@ def procesar_texto(mensaje, context=None):
                 best_intent = intent
 
     if best_score < 0.65:
-        kw_intent = _keyword_intent(mensaje)
-        if kw_intent:
-            best_intent = kw_intent
+        best_intent = None
 
     if not best_intent:
-        if context and context.get("last_intent"):
-            best_intent = context.get("last_intent")
-        else:
-            best_intent = "desconocido"
+        best_intent = "desconocido"
 
     return best_intent, entities
