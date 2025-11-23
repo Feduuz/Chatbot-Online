@@ -186,6 +186,60 @@ def obtener_cotizaciones_dolar():
         print(f"⚠️ Error al obtener cotizaciones del dólar: {e}")
         return []
 
+def obtener_historico_dolares_todos():
+    tipos = [
+        "oficial", "blue", "bolsa", "ccl", "solidario",
+        "tarjeta", "cripto", "mayorista"
+    ]
+
+    historicos = {}
+
+    for tipo in tipos:
+        fechas, valores, ultimo = obtener_historico_dolar(tipo)
+        historicos[tipo] = {
+            "fechas": fechas,
+            "valores": valores,
+            "ultimo": ultimo
+        }
+
+    return historicos
+
+
+def obtener_historico_dolar(tipo="blue"):
+    url = f"https://api.argentinadatos.com/v1/cotizaciones/dolares/{tipo}"
+
+    try:
+        response = requests.get(url, verify=certifi.where(), timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if not isinstance(data, list) or len(data) == 0:
+            return [], [], {}
+
+        fechas = []
+        valores = []
+
+        for d in data:
+            fecha = d.get("fecha")
+            venta = d.get("venta")
+            if fecha and isinstance(venta, (int, float)):
+                fechas.append(fecha)
+                valores.append(venta)
+
+        ultimo_registro = data[-1]
+        ultimo = {
+            "fecha": ultimo_registro.get("fecha"),
+            "compra": ultimo_registro.get("compra"),
+            "venta": ultimo_registro.get("venta")
+        }
+
+        return fechas, valores, ultimo
+
+    except Exception as e:
+        print(f"⚠️ Error al obtener histórico del dólar ({tipo}): {e}")
+        return [], [], {}
+
+
 def obtener_riesgo_pais():
     url = "https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo"
     try:

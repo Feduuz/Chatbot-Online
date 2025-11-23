@@ -7,6 +7,7 @@ from data.financial_api import (
     obtener_listado_acciones,
     obtener_cuentas_remuneradas,
     obtener_cotizaciones_dolar,
+    obtener_historico_dolar,
     obtener_riesgo_pais,
     obtener_riesgo_pais_historico,
     obtener_indice_inflacion,
@@ -87,6 +88,105 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             respuesta += f"🟢 Compra: ${c['compra']}<br>"
             respuesta += f"🔴 Venta: ${c['venta']}<br>"
             respuesta += f"🕒 Última actualización: {c['fechaActualizacion']}<br><br>"
+        """
+                <div class='button-options'>
+            <button class='option-btn' data-intent='Dolar historico'>Dólar Histórico 💰</button>
+        </div>          
+        """
+
+    elif intencion == "dolar_historico":
+        from data.financial_api import obtener_historico_dolares_todos
+
+        historicos = obtener_historico_dolares_todos()
+
+        if not historicos:
+            return "⚠️ No pude obtener los datos históricos del dólar."
+
+        # Por defecto mostrar “oficial”
+        tipo = "oficial"
+        datos = historicos[tipo]
+
+        respuesta = f"""
+        <b>📈 Histórico del Dólar</b><br><br>
+
+        <label><b>Elige tipo de dólar:</b></label><br>
+        <select id='tipoDolarSelect' class='option-btn' style='margin-top:10px;'>
+            <option value='oficial'>Oficial</option>
+            <option value='blue'>Blue</option>
+            <option value='bolsa'>Bolsa</option>
+            <option value='ccl'>CCL</option>
+            <option value='solidario'>Solidario</option>
+            <option value='tarjeta'>Tarjeta</option>
+            <option value='cripto'>Cripto</option>
+            <option value='mayorista'>Mayorista</option>
+        </select>
+
+        <br><br>
+
+        <canvas id='dolarChart' width='900' height='350'></canvas>
+
+        <script>
+            const historicosDolar = {json.dumps(historicos)};
+
+            function renderChartDolar(tipo) {{
+                const datos = historicosDolar[tipo];
+
+                if (!datos) return;
+
+                const fechas = datos.fechas;
+                const valores = datos.valores;
+
+                const ctx = document.getElementById('dolarChart').getContext('2d');
+
+                if (window.dolarChart) {{
+                    try {{ window.dolarChart.destroy(); }} catch (e) {{}}
+                }}
+
+                Chart.register(window['chartjs-plugin-zoom']);
+
+                window.dolarChart = new Chart(ctx, {{
+                    type: 'line',
+                    data: {{
+                        labels: fechas,
+                        datasets: [{{
+                            label: 'Dólar ' + tipo.toUpperCase(),
+                            data: valores,
+                            borderColor: '#00ff99',
+                            backgroundColor: 'rgba(0,255,153,0.2)',
+                            fill: true,
+                            tension: 0.3
+                        }}]
+                    }},
+                    options: {{
+                        responsive: true,
+                        plugins: {{
+                            zoom: {{
+                                zoom: {{
+                                    wheel: {{ enabled: true }},
+                                    pinch: {{ enabled: true }},
+                                    mode: 'x'
+                                }},
+                                pan: {{
+                                    enabled: true,
+                                    mode: 'x'
+                                }}
+                            }}
+                        }}
+                    }}
+                }});
+            }}
+
+            renderChartDolar('oficial');
+
+            // Cambiar el gráfico SIN enviar mensajes
+            document.getElementById('tipoDolarSelect').addEventListener('change', (e) => {{
+                const tipo = e.target.value;
+                renderChartDolar(tipo);
+            }});
+        </script>
+        """
+
+        return _agregar_boton_inicio(respuesta)
 
 
     elif intencion == "riesgo_pais":
@@ -391,11 +491,12 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         <b>🏠 Menú principal</b><br><br>
         Seleccioná una categoría para explorar:<br><br>
         <div class='button-options'>
-            <button class='option-btn' data-intent='Criptomoneda'>Criptomonedas 💰</button>
+            <button class='option-btn' data-intent='Criptomoneda'>Criptomonedas 🪙</button>
             <button class='option-btn' data-intent='Acciones'>Acciones 📈</button>
             <button class='option-btn' data-intent='Plazo fijo'>Plazo Fijo 🏦</button>
             <button class='option-btn' data-intent='Cuenta remunerada'>Cuentas Remuneradas 💵</button>
             <button class='option-btn' data-intent='Dolar'>Dólar 💲</button>
+            <button class='option-btn' data-intent='Dolar historico'>Dólar Histórico 💰</button>
             <button class='option-btn' data-intent='Riesgo pais'>Riesgo País 📊</button>
             <button class='option-btn' data-intent='Inflacion'>Inflación 📉</button>
             <button class='option-btn' data-intent='Uva'>Índice UVA 📅</button>

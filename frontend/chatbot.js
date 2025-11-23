@@ -16,16 +16,28 @@
     function executeEmbeddedScripts(element) {
         setTimeout(() => {
             const scripts = element.querySelectorAll("script");
+
             scripts.forEach((oldScript) => {
                 const newScript = document.createElement("script");
+                newScript.type = "text/javascript";
+
+                // Si tiene "src", evitar ejecutarlo si ya existe en el documento
                 if (oldScript.src) {
+                    const alreadyLoaded = document.querySelector(`script[src="${oldScript.src}"]`);
+                    if (alreadyLoaded) {
+                        oldScript.remove();
+                        return; // Evita duplicados
+                    }
                     newScript.src = oldScript.src;
                 } else {
+                    // Script inline → copiar su contenido
                     newScript.textContent = oldScript.textContent;
                 }
+
                 document.body.appendChild(newScript);
                 oldScript.remove();
             });
+
         }, 100);
     }
 
@@ -142,6 +154,8 @@
 
     // Detectar clics en botones de opciones del chat
     document.addEventListener("click", function(e) {
+        if (e.target.closest("select")) return;
+
         if (e.target.classList && e.target.classList.contains("option-btn")) {
             const intent = e.target.getAttribute("data-intent") || e.target.textContent.trim();
             sendMessageToBot(intent);
@@ -165,3 +179,43 @@
         document.body.classList.remove("dark-mode");
         themeToggle.checked = true;
     }
+
+    window.dibujarGrafico = function(tipo) {
+    const data = window.historicosDolar[tipo];
+    if (!data) return;
+
+    const ctx = document.getElementById("dolarChart")?.getContext("2d");
+    if (!ctx) return;
+
+    // Destruir gráfico anterior si existe
+    if (window.dolarChart && typeof window.dolarChart.destroy === "function") {
+        window.dolarChart.destroy();
+    }
+
+    window.dolarChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.fechas,
+            datasets: [{
+                label: `Dólar ${tipo}`,
+                data: data.valores,
+                borderColor: '#0dcaf0',
+                backgroundColor: 'rgba(13, 202, 240, 0.2)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                zoom: {
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: "x"
+                    },
+                }
+            },
+        }
+    });
+}

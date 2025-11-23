@@ -9,15 +9,16 @@ INTENT_KEYWORDS = {
     "saludo": ["hola", "buenas", "buenos", "hey"],
     "criptomoneda": ["bitcoin", "btc", "cripto", "criptomonedas", "ethereum"],
     "acciones": ["acción", "acciones", "bolsa", "cedear", "mercado"],
-    "plazo_fijo": ["plazo fijo", "plazofijo", "plazo"],
-    "cuenta_remunerada": ["cuenta remunerada", "cuentas remuneradas", "cuentas"],
+    "plazo_fijo": ["plazo fijo", "plazofijo", "plazo", "plazos fijos"],
+    "cuenta_remunerada": ["cuenta remunerada", "cuentas remuneradas"],
     "dolar": ["dolar", "dólar", "usd"],
+    "dolar_historico": ["histórico dólar", "dolar histórico", "gráfico dólar", "usd histórico"],
     "riesgo_pais": ["riesgo país", "riesgo pais", "riesgo"],
     "riesgo_pais_historico": ["riesgo país histórico", "riesgo pais historico", "riesgo histórico", "historico", "histórico"],
     "inflacion": ["inflacion", "inflación", "ipc", "inflación mensual"],
     "inflacion_interanual": ["interanual", "inflación interanual", "inflacion interanual"],
     "uva": ["uva", "valor uva", "índice uva", "indice uva"],
-    "inicio": ["inicio", "menu", "menú", "volver"]
+    "inicio": ["inicio", "menu", "menú", "volver", "home"]
 }
 
 def limpiar_texto(texto):
