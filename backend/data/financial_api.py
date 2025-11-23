@@ -185,25 +185,27 @@ def obtener_cotizaciones_dolar():
     except Exception as e:
         print(f"⚠️ Error al obtener cotizaciones del dólar: {e}")
         return []
-
+    
 def obtener_historico_dolares_todos():
-    tipos = [
-        "oficial", "blue", "bolsa", "ccl", "solidario",
-        "tarjeta", "cripto", "mayorista"
-    ]
-
-    historicos = {}
-
-    for tipo in tipos:
-        fechas, valores, ultimo = obtener_historico_dolar(tipo)
-        historicos[tipo] = {
-            "fechas": fechas,
-            "valores": valores,
-            "ultimo": ultimo
-        }
-
-    return historicos
-
+    tipos = ["oficial", "blue", "bolsa", "ccl", "solidario", "tarjeta", "cripto"]
+    resultado = {}
+    
+    print("🔄 Descargando históricos de todos los dólares...")
+    
+    for t in tipos:
+        # Reutilizamos tu función existente
+        fechas, valores, _ = obtener_historico_dolar(t)
+        
+        if fechas and valores:
+            resultado[t] = {
+                "fechas": fechas,
+                "valores": valores
+            }
+        else:
+            # Si falla alguno, mandamos listas vacías para que no rompa el JS
+            resultado[t] = {"fechas": [], "valores": []}
+            
+    return resultado
 
 def obtener_historico_dolar(tipo="blue"):
     url = f"https://api.argentinadatos.com/v1/cotizaciones/dolares/{tipo}"

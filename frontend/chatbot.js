@@ -17,28 +17,25 @@
         setTimeout(() => {
             const scripts = element.querySelectorAll("script");
 
-            scripts.forEach((oldScript) => {
-                const newScript = document.createElement("script");
-                newScript.type = "text/javascript";
-
-                // Si tiene "src", evitar ejecutarlo si ya existe en el documento
-                if (oldScript.src) {
-                    const alreadyLoaded = document.querySelector(`script[src="${oldScript.src}"]`);
-                    if (alreadyLoaded) {
-                        oldScript.remove();
-                        return; // Evita duplicados
+        scripts.forEach((oldScript) => {
+                    const newScript = document.createElement("script");
+                    // Copiamos atributos por si usas type="module" u otros en el futuro
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    
+                    if (oldScript.src) {
+                        // Evitar duplicar librerías externas si ya están cargadas
+                        if (!document.querySelector(`script[src="${oldScript.src}"]`)) {
+                            newScript.src = oldScript.src;
+                            document.body.appendChild(newScript);
+                        }
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                        document.body.appendChild(newScript);
                     }
-                    newScript.src = oldScript.src;
-                } else {
-                    // Script inline → copiar su contenido
-                    newScript.textContent = oldScript.textContent;
-                }
-
-                document.body.appendChild(newScript);
-                oldScript.remove();
-            });
-
-        }, 100);
+                    
+                    oldScript.remove();
+                });
+        }, 50);
     }
 
     function sendMessageToBot(message) {
@@ -180,42 +177,3 @@
         themeToggle.checked = true;
     }
 
-    window.dibujarGrafico = function(tipo) {
-    const data = window.historicosDolar[tipo];
-    if (!data) return;
-
-    const ctx = document.getElementById("dolarChart")?.getContext("2d");
-    if (!ctx) return;
-
-    // Destruir gráfico anterior si existe
-    if (window.dolarChart && typeof window.dolarChart.destroy === "function") {
-        window.dolarChart.destroy();
-    }
-
-    window.dolarChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.fechas,
-            datasets: [{
-                label: `Dólar ${tipo}`,
-                data: data.valores,
-                borderColor: '#0dcaf0',
-                backgroundColor: 'rgba(13, 202, 240, 0.2)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                zoom: {
-                    zoom: {
-                        wheel: { enabled: true },
-                        pinch: { enabled: true },
-                        mode: "x"
-                    },
-                }
-            },
-        }
-    });
-}

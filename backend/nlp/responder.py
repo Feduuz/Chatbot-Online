@@ -1,4 +1,5 @@
 import json
+import uuid
 from data.financial_api import (
     obtener_top5_criptos,
     obtener_listado_criptos,
@@ -8,6 +9,7 @@ from data.financial_api import (
     obtener_cuentas_remuneradas,
     obtener_cotizaciones_dolar,
     obtener_historico_dolar,
+    obtener_historico_dolares_todos,
     obtener_riesgo_pais,
     obtener_riesgo_pais_historico,
     obtener_indice_inflacion,
@@ -95,97 +97,129 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         """
 
     elif intencion == "dolar_historico":
-        from data.financial_api import obtener_historico_dolares_todos
-
         historicos = obtener_historico_dolares_todos()
 
         if not historicos:
             return "⚠️ No pude obtener los datos históricos del dólar."
 
-        # Por defecto mostrar “oficial”
-        tipo = "oficial"
-        datos = historicos[tipo]
+        # Generamos IDs únicos para esta instancia del gráfico
+        unique_id = str(uuid.uuid4())[:8]
+        canvas_id = f"chart_{unique_id}"
+        select_id = f"select_{unique_id}"
+
+        # Serializamos datos
+        datos_json = json.dumps(historicos)
 
         respuesta = f"""
-        <b>📈 Histórico del Dólar</b><br><br>
+        <b>📈 Histórico del Dólar</b><br>
 
-        <label><b>Elige tipo de dólar:</b></label><br>
-        <select id='tipoDolarSelect' class='option-btn' style='margin-top:10px;'>
-            <option value='oficial'>Oficial</option>
-            <option value='blue'>Blue</option>
-            <option value='bolsa'>Bolsa</option>
-            <option value='ccl'>CCL</option>
-            <option value='solidario'>Solidario</option>
-            <option value='tarjeta'>Tarjeta</option>
-            <option value='cripto'>Cripto</option>
-            <option value='mayorista'>Mayorista</option>
+        <label for="{select_id}" style="font-size: 0.9em;">Tipo de cambio:</label>
+        <select id="{select_id}" class="option-btn" style="margin-top:5px; margin-bottom: 10px; display:block; width: 100%; max-width: 200px; padding: 5px; color: #333;">
+            <option value="blue" selected>Blue</option>
+            <option value="oficial">Oficial</option>
+            <option value="bolsa">Bolsa (MEP)</option>
+            <option value="ccl">CCL</option>
+            <option value="solidario">Solidario</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="cripto">Cripto</option>
         </select>
 
-        <br><br>
-
-        <canvas id='dolarChart' width='900' height='350'></canvas>
+        <div style="position: relative; width: 100%; height: 350px; min-height: 350px;">
+            <canvas id="{canvas_id}" width="900" height="350"></canvas>
+        </div>
 
         <script>
-            const historicosDolar = {json.dumps(historicos)};
+        (function() {{
+            const canvasId = "{canvas_id}";
+            const selectId = "{select_id}";
+            
+            // AHORA SÍ ESTO ES UN DICCIONARIO CON CLAVES 'blue', 'oficial', etc.
+            const todosLosDatos = {datos_json}; 
+            
+            let miChart = null;
 
-            function renderChartDolar(tipo) {{
-                const datos = historicosDolar[tipo];
-
-                if (!datos) return;
-
-                const fechas = datos.fechas;
-                const valores = datos.valores;
-
-                const ctx = document.getElementById('dolarChart').getContext('2d');
-
-                if (window.dolarChart) {{
-                    try {{ window.dolarChart.destroy(); }} catch (e) {{}}
+            function dibujar(tipo) {{
+                // Validación robusta de datos
+                if (!todosLosDatos[tipo]) {{
+                    console.error("Tipo de dólar no encontrado:", tipo);
+                    return;
                 }}
 
-                Chart.register(window['chartjs-plugin-zoom']);
+                const datos = todosLosDatos[tipo];
+                if (!datos.fechas || datos.fechas.length === 0) {{
+                    console.warn("Datos vacíos para:", tipo);
+                    return;
+                }}
 
-                window.dolarChart = new Chart(ctx, {{
+                const ctx = document.getElementById(canvasId);
+                if (!ctx) return;
+
+                if (miChart) {{
+                    miChart.destroy();
+                }}
+
+                // Colores dinámicos según el modo (detectado por clase en body si quisieras, 
+                // pero usaremos colores neutros/oscuros que funcionen en ambos)
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                const textColor = isDarkMode ? '#e0e0e0' : '#333333';
+                const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+                miChart = new Chart(ctx, {{
                     type: 'line',
                     data: {{
-                        labels: fechas,
+                        labels: datos.fechas,
                         datasets: [{{
-                            label: 'Dólar ' + tipo.toUpperCase(),
-                            data: valores,
-                            borderColor: '#00ff99',
-                            backgroundColor: 'rgba(0,255,153,0.2)',
+                            label: 'Valor ' + tipo.toUpperCase(),
+                            data: datos.valores,
+                            borderColor: '#00d2ff',
+                            backgroundColor: 'rgba(0, 210, 255, 0.15)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
                             fill: true,
-                            tension: 0.3
+                            tension: 0.1
                         }}]
                     }},
                     options: {{
                         responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {{
+                            mode: 'index',
+                            intersect: false,
+                        }},
                         plugins: {{
-                            zoom: {{
-                                zoom: {{
-                                    wheel: {{ enabled: true }},
-                                    pinch: {{ enabled: true }},
-                                    mode: 'x'
-                                }},
-                                pan: {{
-                                    enabled: true,
-                                    mode: 'x'
-                                }}
+                            legend: {{
+                                labels: {{ color: textColor }}
+                            }}
+                        }},
+                        scales: {{
+                            x: {{
+                                ticks: {{ color: textColor, maxTicksLimit: 8 }},
+                                grid: {{ display: false }}
+                            }},
+                            y: {{
+                                ticks: {{ color: textColor }},
+                                grid: {{ color: gridColor }}
                             }}
                         }}
                     }}
                 }});
             }}
 
-            renderChartDolar('oficial');
+            // Dibujado inicial con pequeño delay para asegurar DOM
+            setTimeout(() => {{
+                dibujar('blue');
+            }}, 100);
 
-            // Cambiar el gráfico SIN enviar mensajes
-            document.getElementById('tipoDolarSelect').addEventListener('change', (e) => {{
-                const tipo = e.target.value;
-                renderChartDolar(tipo);
-            }});
+            const sel = document.getElementById(selectId);
+            if (sel) {{
+                sel.addEventListener('change', function(e) {{
+                    dibujar(e.target.value);
+                }});
+            }}
+        }})();
         </script>
         """
-
         return _agregar_boton_inicio(respuesta)
 
 

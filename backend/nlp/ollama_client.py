@@ -68,6 +68,7 @@ def consultar_ollama(mensaje, historial=None):
         obtener_top5_criptos,
         obtener_top5_acciones,
         obtener_cotizaciones_dolar,
+        obtener_historico_dolar,
         obtener_riesgo_pais,
         obtener_riesgo_pais_historico,
         obtener_indice_inflacion,
