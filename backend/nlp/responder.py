@@ -1,6 +1,7 @@
 import json
 import uuid
-from data.financial_api import (
+from ..groq_client import consultar_groq
+from ..data.financial_api import (
     obtener_top5_criptos,
     obtener_listado_criptos,
     obtener_tasas_plazofijo,
@@ -539,8 +540,7 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         return respuesta
 
     elif intencion == "desconocido":
-        from nlp.ollama_client import consultar_ollama
-        respuesta_llm = consultar_ollama(mensaje)
+        respuesta_llm = consultar_groq(mensaje)
         return _agregar_boton_inicio(respuesta_llm)
     
     else:
