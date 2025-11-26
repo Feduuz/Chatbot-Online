@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: chatbot-online
+    env: python
+    region: ohio
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m backend.app
+    envVars:
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      COINGECKO_API_KEY: ${COINGECKO_API_KEY}
