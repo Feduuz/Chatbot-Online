@@ -531,11 +531,12 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             <button class='option-btn' data-intent='Criptomoneda'>Criptomonedas 🪙</button>
             <button class='option-btn' data-intent='Cuenta remunerada'>Cuentas Remuneradas 💵</button>
             <button class='option-btn' data-intent='Dolar'>Dólar 💲</button>
-            <button class='option-btn' data-intent='Dolar historico'>Dólar Histórico 💰</button>
+            <button class='option-btn' data-intent='Dolar_historico'>Dólar Histórico 💰</button>
             <button class='option-btn' data-intent='Uva'>Índice UVA 📅</button>
             <button class='option-btn' data-intent='Inflacion'>Inflación 📉</button>
             <button class='option-btn' data-intent='Plazo fijo'>Plazo Fijo 🏦</button>
             <button class='option-btn' data-intent='Riesgo pais'>Riesgo País 📊</button>
+            <button class='option-btn' data-intent='riesgo_pais_historico'>Riesgo País Histórico 🧾</button>
         </div>
         """
         return respuesta

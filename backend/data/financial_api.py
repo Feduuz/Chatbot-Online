@@ -55,7 +55,6 @@ def obtener_top5_acciones():
     tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
     resultados = []
     for t in tickers:
-        import yfinance as yf
         precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
         resultados.append(f"{t}: USD ${precio:.2f}")
     return resultados
@@ -64,7 +63,6 @@ def obtener_listado_acciones():
     tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "JNJ"]  # etc.
     tickers_sorted = sorted(tickers)
     resultados = []
-    import yfinance as yf
     for t in tickers_sorted:
         precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
         resultados.append(f"{t}: USD ${precio:.2f}")
