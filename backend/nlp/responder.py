@@ -56,14 +56,14 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         if top_clientes:
             respuesta += "<b>👤 **Para Clientes:**</b><br>"
             for i, t in enumerate(top_clientes, start=1):
-                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']:.2f}%<br>"
+                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']* 100:.2f}%<br>"
 
         respuesta += "<br><hr><br>"
 
         if top_no_clientes:
             respuesta += "<b>🚫 **Para No Clientes:**</b><br>"
             for i, t in enumerate(top_no_clientes, start=1):
-                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']:.2f}%<br>"
+                respuesta += f"{i}° {t['banco']}: TNA {t['tasa']* 100:.2f}%<br>"
 
 
     elif intencion == "cuenta_remunerada":
@@ -74,9 +74,10 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         respuesta = "<b>💵 Top 5 Cuentas Remuneradas (según ArgentinaDatos):</b><br><br>"
         for i, c in enumerate(cuentas, start=1):
             respuesta += f"{i}° <b>{c['entidad']}</b><br>"
-            respuesta += f"🏦 TNA: {c['tna']}%<br>"
-            tope = c['tope'] if c['tope'] not in [None, "None", "", 0] else " --- "
-            respuesta += f"💰 Tope: ${tope}<br><br>"
+            respuesta += f"🏦 TNA: {c['tna'] * 100:.2f}%<br>"
+            tope = c['tope']
+            tope_texto = f"${tope:,}" if isinstance(tope, (int, float)) else " Sin tope"
+            respuesta += f"💰 Tope: {tope_texto}<br><br>"
 
 
     elif intencion == "dolar":
@@ -526,15 +527,15 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         <b>🏠 Menú principal</b><br><br>
         Seleccioná una categoría para explorar:<br><br>
         <div class='button-options'>
-            <button class='option-btn' data-intent='Criptomoneda'>Criptomonedas 🪙</button>
             <button class='option-btn' data-intent='Acciones'>Acciones 📈</button>
-            <button class='option-btn' data-intent='Plazo fijo'>Plazo Fijo 🏦</button>
+            <button class='option-btn' data-intent='Criptomoneda'>Criptomonedas 🪙</button>
             <button class='option-btn' data-intent='Cuenta remunerada'>Cuentas Remuneradas 💵</button>
             <button class='option-btn' data-intent='Dolar'>Dólar 💲</button>
             <button class='option-btn' data-intent='Dolar historico'>Dólar Histórico 💰</button>
-            <button class='option-btn' data-intent='Riesgo pais'>Riesgo País 📊</button>
-            <button class='option-btn' data-intent='Inflacion'>Inflación 📉</button>
             <button class='option-btn' data-intent='Uva'>Índice UVA 📅</button>
+            <button class='option-btn' data-intent='Inflacion'>Inflación 📉</button>
+            <button class='option-btn' data-intent='Plazo fijo'>Plazo Fijo 🏦</button>
+            <button class='option-btn' data-intent='Riesgo pais'>Riesgo País 📊</button>
         </div>
         """
         return respuesta
