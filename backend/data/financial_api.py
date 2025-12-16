@@ -55,8 +55,18 @@ def obtener_top5_acciones():
     tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
     resultados = []
     for t in tickers:
-        precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
-        resultados.append(f"{t}: USD ${precio:.2f}")
+        try:
+            hist = yf.Ticker(t).history(period="5d")
+
+            if hist.empty or "Close" not in hist:
+                resultados.append(f"{t}: dato no disponible")
+                continue
+
+            precio = hist["Close"].iloc[-1]
+            resultados.append(f"{t}: USD ${precio:.2f}")
+
+        except Exception as e:
+            resultados.append(f"{t}: error al obtener precio")
     return resultados
 
 def obtener_listado_acciones():
