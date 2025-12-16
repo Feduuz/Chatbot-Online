@@ -54,19 +54,33 @@ def obtener_tasas_plazofijo():
 def obtener_top5_acciones():
     tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
     resultados = []
+
     for t in tickers:
         try:
-            hist = yf.Ticker(t).history(period="5d")
+            ticker = yf.Ticker(t)
 
-            if hist.empty or "Close" not in hist:
+            # 1️⃣ Intento normal
+            hist = ticker.history(period="5d")
+
+            precio = None
+
+            if not hist.empty and "Close" in hist:
+                precio = hist["Close"].iloc[-1]
+
+            # 2️⃣ Fallback si Yahoo bloquea history()
+            if precio is None or (isinstance(precio, float) and math.isnan(precio)):
+                precio = ticker.fast_info.get("last_price")
+
+            # 3️⃣ Validación final
+            if precio is None or (isinstance(precio, float) and math.isnan(precio)):
                 resultados.append(f"{t}: dato no disponible")
-                continue
-
-            precio = hist["Close"].iloc[-1]
-            resultados.append(f"{t}: USD ${precio:.2f}")
+            else:
+                resultados.append(f"{t}: USD ${precio:.2f}")
 
         except Exception as e:
+            print(f"⚠️ Error en {t}: {e}")
             resultados.append(f"{t}: error al obtener precio")
+
     return resultados
 
 def obtener_listado_acciones():
