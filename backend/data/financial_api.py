@@ -121,7 +121,7 @@ def obtener_listado_criptos():
         params = {
             "vs_currency": "usd",
             "order": "market_cap_desc",
-            "per_page": 250,
+            "per_page": 10,
             "page": 1,
             "sparkline": "false"
         }
@@ -134,8 +134,16 @@ def obtener_listado_criptos():
         data_sorted = sorted(data, key=lambda x: x['name'].lower())
 
         criptos = []
-        for coin in data_sorted:
-            criptos.append(f"{coin['name']} ({coin['symbol'].upper()}): USD {coin['current_price']:.2f}")
+        for coin in data:
+            if coin["symbol"].lower() in ["usdt", "usdc"]:
+                continue
+
+            criptos.append(
+                f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}"
+            )
+
+            if len(criptos) == 5:
+                break
 
         return criptos
     except Exception as e:
