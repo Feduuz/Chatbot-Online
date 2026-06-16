@@ -6,7 +6,6 @@ from ..data.financial_api import (
     obtener_listado_criptos,
     obtener_tasas_plazofijo,
     obtener_top5_acciones,
-    obtener_listado_acciones,
     obtener_cuentas_remuneradas,
     obtener_cotizaciones_dolar,
     obtener_historico_dolar,
@@ -41,10 +40,40 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
 
 
     elif intencion == "acciones":
-        top5 = obtener_top5_acciones()
-        respuesta = "<b>📈 Las 5 acciones con mayor capitalización son:</b><br><br>"
-        for i, accion in enumerate(top5, start=1):
-            respuesta += f"{i}° {accion}<br>"
+        datos = obtener_top5_acciones()
+
+        fecha = datos["fecha"].strftime("%d/%m/%Y %H:%Mhs")
+        color_merval = "🟢" if datos["variacion_merval"] >= 0 else "🔴"
+
+        respuesta = f"""
+        <b>📈 Mercado Argentino</b><br><br>
+
+        {fecha}<br><br>
+
+        <b>Merval:</b>
+        {datos['merval']:,.2f} pts
+        {color_merval} {datos['variacion_merval']:+.2f}%<br><br>
+
+        <b>🚀 Top 5 Mayores Subas:</b><br><br>
+        """
+
+        for accion in datos["subas"]:
+            respuesta += (
+                f"🟢 <b>{accion['nombre']}</b> "
+                f"({accion['ticker']}) "
+                f"${accion['precio']:,.2f} "
+                f"{accion['variacion']:+.2f}%<br>"
+            )
+
+        respuesta += "<br><b>📉 Top 5 Mayores Bajas:</b><br><br>"
+
+        for accion in datos["bajas"]:
+            respuesta += (
+                f"🔴 <b>{accion['nombre']}</b> "
+                f"({accion['ticker']}) "
+                f"${accion['precio']:,.2f} "
+                f"{accion['variacion']:+.2f}%<br>"
+            )
 
 
     elif intencion == "plazo_fijo":

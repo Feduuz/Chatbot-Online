@@ -52,45 +52,100 @@ def obtener_tasas_plazofijo():
         return [], []
 
 def obtener_top5_acciones():
-    tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
-    resultados = []
+    tickers = {
+        "ALUA.BA": "Aluar",
+        "BBAR.BA": "BBVA Argentina",
+        "BMA.BA": "Banco Macro",
+        "BYMA.BA": "BYMA",
+        "CEPU.BA": "Central Puerto",
+        "COME.BA": "Comercial del Plata",
+        "CRES.BA": "Cresud",
+        "CVH.BA": "Cablevisión",
+        "EDN.BA": "Edenor",
+        "GGAL.BA": "Grupo Galicia",
+        "HARG.BA": "Holcim Argentina",
+        "LOMA.BA": "Loma Negra",
+        "METR.BA": "Metrogas",
+        "MIRG.BA": "Mirgor",
+        "MOLI.BA": "Molinos",
+        "PAMP.BA": "Pampa Energía",
+        "SUPV.BA": "Supervielle",
+        "TECO2.BA": "Telecom",
+        "TGNO4.BA": "TGN",
+        "TGSU2.BA": "TGS",
+        "TRAN.BA": "Transener",
+        "TXAR.BA": "Ternium",
+        "YPFD.BA": "YPF"
+    }
 
-    for t in tickers:
+    acciones = []
+
+    for ticker, nombre in tickers.items():
+
         try:
-            ticker = yf.Ticker(t)
 
-            # 1️⃣ Intento normal
-            hist = ticker.history(period="5d")
+            data = yf.Ticker(ticker).history(period="5d")
 
-            precio = None
+            if len(data) < 2:
+                continue
 
-            if not hist.empty and "Close" in hist:
-                precio = hist["Close"].iloc[-1]
+            precio_actual = float(data["Close"].iloc[-1])
+            precio_anterior = float(data["Close"].iloc[-2])
 
-            # 2️⃣ Fallback si Yahoo bloquea history()
-            if precio is None or (isinstance(precio, float) and math.isnan(precio)):
-                precio = ticker.fast_info.get("last_price")
+            variacion = (
+                (precio_actual - precio_anterior)
+                / precio_anterior
+            ) * 100
 
-            # 3️⃣ Validación final
-            if precio is None or (isinstance(precio, float) and math.isnan(precio)):
-                resultados.append(f"{t}: dato no disponible")
-            else:
-                resultados.append(f"{t}: USD ${precio:.2f}")
+            acciones.append({
+                "nombre": nombre,
+                "ticker": ticker.replace(".BA", ""),
+                "precio": precio_actual,
+                "variacion": variacion
+            })
 
         except Exception as e:
-            print(f"⚠️ Error en {t}: {e}")
-            resultados.append(f"{t}: error al obtener precio")
+            print(f"⚠️ Error en {ticker}: {e}")
 
-    return resultados
+    try:
 
-def obtener_listado_acciones():
-    tickers = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "FB", "JNJ"]  # etc.
-    tickers_sorted = sorted(tickers)
-    resultados = []
-    for t in tickers_sorted:
-        precio = yf.Ticker(t).history(period="1d")["Close"].iloc[-1]
-        resultados.append(f"{t}: USD ${precio:.2f}")
-    return resultados
+        merval = yf.Ticker("^MERV")
+        hist = merval.history(period="5d")
+
+        merval_actual = float(hist["Close"].iloc[-1])
+        merval_anterior = float(hist["Close"].iloc[-2])
+
+        variacion_merval = (
+            (merval_actual - merval_anterior)
+            / merval_anterior
+        ) * 100
+
+    except Exception as e:
+
+        print(f"⚠️ Error obteniendo MERVAL: {e}")
+
+        merval_actual = 0
+        variacion_merval = 0
+
+    top_subas = sorted(
+        acciones,
+        key=lambda x: x["variacion"],
+        reverse=True
+    )[:5]
+
+    top_bajas = sorted(
+        acciones,
+        key=lambda x: x["variacion"]
+    )[:5]
+
+    return {
+        "fecha": datetime.now(),
+        "merval": merval_actual,
+        "variacion_merval": variacion_merval,
+        "subas": top_subas,
+        "bajas": top_bajas
+    }
+
 
 def obtener_top5_criptos():
     try:

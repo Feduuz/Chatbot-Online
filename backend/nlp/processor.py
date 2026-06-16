@@ -5,7 +5,7 @@ def procesar_intencion(mensaje):
 
     reglas = {
         "criptomoneda": ["cripto", "bitcoin", "ethereum", "criptomonedas" ,"btc"],
-        "acciones": ["acción", "acciones", "stocks", "mercado" ,"bolsa"],
+        "acciones": ["acción", "acciones", "stocks", "mercado" ,"bolsa", "merval"],
         "cuenta_remunerada": ["cuenta remunerada", "cuentas remuneradas", "remunerada"],
         "plazo_fijo": ["plazo fijo", "plazofijo", "plazo", "plazos fijos"],
         "dolar": ["dólar hoy", "dólar", "dolar", "usd"],
