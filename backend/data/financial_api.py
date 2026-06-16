@@ -135,7 +135,7 @@ def obtener_listado_criptos():
 
         criptos = []
         for coin in data:
-            if coin["symbol"].lower() in ["usdt", "usdc"]:
+            if coin["symbol"].lower() in ["usdt", "tether", "usdc", "usds"]:
                 continue
 
             criptos.append(
