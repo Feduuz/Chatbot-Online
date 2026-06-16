@@ -98,7 +98,7 @@ def obtener_top5_criptos():
         params = {
         "vs_currency": "usd",
         "order": "market_cap_desc",
-        "per_page": 5,
+        "per_page": 10,
         "page": 1,
         "sparkline": "false"
     }
@@ -108,8 +108,24 @@ def obtener_top5_criptos():
         data = response.json()
 
         criptos = []
+
+        stablecoins_excluidas = [
+            "usdt",
+            "usdc",
+            "usds",
+            "dai",
+        ]
+
         for coin in data:
-            criptos.append(f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}")
+            if coin["symbol"].lower() in stablecoins_excluidas:
+                continue
+
+            criptos.append(
+                f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}"
+            )
+
+            if len(criptos) == 5:
+                break
 
         return criptos
     except Exception as e:
@@ -121,7 +137,7 @@ def obtener_listado_criptos():
         params = {
             "vs_currency": "usd",
             "order": "market_cap_desc",
-            "per_page": 10,
+            "per_page": 20,
             "page": 1,
             "sparkline": "false"
         }
@@ -133,17 +149,29 @@ def obtener_listado_criptos():
         # Ordenar alfabéticamente
         data_sorted = sorted(data, key=lambda x: x['name'].lower())
 
-        criptos = []
-        for coin in data:
-            if coin["symbol"].lower() in ["usdt", "tether", "usdc", "usds"]:
-                continue
+        stablecoins_excluidas = [
+            "usdt",
+            "usdc",
+            "usds",
+            "dai",
+        ]
 
+        data_filtrada = [
+            coin for coin in data
+            if coin["symbol"].lower() not in stablecoins_excluidas
+        ]
+
+        data_sorted = sorted(
+            data_filtrada,
+            key=lambda x: x["name"].lower()
+        )
+
+        criptos = []
+
+        for coin in data_sorted:
             criptos.append(
                 f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}"
             )
-
-            if len(criptos) == 5:
-                break
 
         return criptos
     except Exception as e:
