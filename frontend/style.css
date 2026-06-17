@@ -341,9 +341,13 @@ body.dark-mode .button-voice.active {
     max-width: 90%;
   }
 
+  .message-box.right {
+    padding: 8px 10px;
+  }
+
   .main-header {
-    top: 10px;
-    right: 10px;
+    top: 25px;
+    right: 25px;
   }
 
   .theme-checkbox {
