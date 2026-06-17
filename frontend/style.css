@@ -56,12 +56,12 @@ body.dark-mode::before {
 .card-container {
   background-color: #ffffff85;
   border-radius: 15px;
-  padding: 30px;
+  padding: 15px 22px;
   margin: 20px;
   display: flex;
   flex-direction: column;
-  width: 60%;
-  max-height: 70%;
+  width: 70%;
+  max-height: 75%;
   overflow-y: auto;
 }
 
@@ -225,7 +225,7 @@ body.dark-mode::before {
 }
 /* From Uiverse.io by cuzpq */ 
 .theme-checkbox {
-  --toggle-size: 16px;
+  --toggle-size: 15px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -319,4 +319,66 @@ body.dark-mode .button-voice:hover {
 
 body.dark-mode .button-voice.active {
   background-color: #dc3545;
+}
+
+
+/* Modo celular */
+@media screen and (max-width: 768px) {
+
+  .card-container {
+    width: 95%;
+    max-width: 95%;
+    max-height: 90vh;
+    margin: 10px;
+    padding: 12px;
+  }
+
+  .messages-container {
+    padding: 8px;
+  }
+
+  .message-box {
+    max-width: 90%;
+  }
+
+  .main-header {
+    top: 10px;
+    right: 10px;
+  }
+
+  .theme-checkbox {
+    --toggle-size: 10px;
+  }
+
+  .card-header .img-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+  }
+
+  .card-header .text-chat {
+    font-size: 18px;
+  }
+
+  .option-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .message-input .message-send {
+    min-height: 40px;
+    max-height: 120px;
+    padding: 8px;
+  }
+
+  .message-input .button-send {
+    padding: 8px 18px;
+    font-size: 15px;
+  }
+
+  .button-voice {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
 }
