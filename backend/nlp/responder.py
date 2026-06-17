@@ -58,8 +58,10 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         """
 
         for accion in datos["subas"]:
+            color = "🟢" if accion["variacion"] >= 0 else "🔴"
+
             respuesta += (
-                f"🟢 <b>{accion['nombre']}</b> "
+                f"{color} <b>{accion['nombre']}</b> "
                 f"({accion['ticker']}) "
                 f"${accion['precio']:,.2f} "
                 f"{accion['variacion']:+.2f}%<br>"
@@ -68,8 +70,10 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         respuesta += "<br><b>📉 Top 5 Mayores Bajas:</b><br><br>"
 
         for accion in datos["bajas"]:
+            color = "🔴" if accion["variacion"] >= 0 else "🟢"
+
             respuesta += (
-                f"🔴 <b>{accion['nombre']}</b> "
+                f"{color} <b>{accion['nombre']}</b> "
                 f"({accion['ticker']}) "
                 f"${accion['precio']:,.2f} "
                 f"{accion['variacion']:+.2f}%<br>"
