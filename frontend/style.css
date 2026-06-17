@@ -342,11 +342,11 @@ body.dark-mode .button-voice.active {
   }
 
   .message-box.right {
-    padding: 8px 10px;
+    padding: 0px 10px;
   }
 
   .main-header {
-    top: 25px;
+    top: 5%;
     right: 25px;
   }
 
