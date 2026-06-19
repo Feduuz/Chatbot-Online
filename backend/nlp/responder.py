@@ -34,9 +34,19 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
 
     elif intencion == "criptomoneda":
         top5 = obtener_top5_criptos()
+
         respuesta = "<b>💰 Las 5 criptomonedas con mayor capitalización son:</b><br><br>"
         for i, cripto in enumerate(top5, start=1):
-            respuesta += f"{i}° {cripto}<br>"
+            color = "🟢" if cripto["variacion"] >= 0 else "🔴"
+
+            respuesta += (
+                f"{i}° "
+                f"<b>{cripto['nombre']}</b> "
+                f"({cripto['simbolo']}): "
+                f"USD ${cripto['precio']:,.2f} "
+                f"{color} "
+                f"{cripto['variacion']:+.2f}%<br>"
+            )
 
 
     elif intencion == "acciones":
@@ -64,7 +74,7 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
                 f"{color} <b>{accion['nombre']}</b> "
                 f"({accion['ticker']}) "
                 f"${accion['precio']:,.2f} "
-                f"{accion['variacion']:+.2f}%<br>"
+                f"<b>{accion['variacion']:+.2f}%</b><br>"
             )
 
         respuesta += "<br><b>📉 Top 5 Mayores Bajas:</b><br><br>"
@@ -76,7 +86,7 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
                 f"{color} <b>{accion['nombre']}</b> "
                 f"({accion['ticker']}) "
                 f"${accion['precio']:,.2f} "
-                f"{accion['variacion']:+.2f}%<br>"
+                f"<b>{accion['variacion']:+.2f}%</b><br>"
             )
 
 

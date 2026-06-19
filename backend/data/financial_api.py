@@ -175,9 +175,12 @@ def obtener_top5_criptos():
             if coin["symbol"].lower() in stablecoins_excluidas:
                 continue
 
-            criptos.append(
-                f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}"
-            )
+            criptos.append({
+                "nombre": coin["name"],
+                "simbolo": coin["symbol"].upper(),
+                "precio": coin["current_price"],
+                "variacion": coin.get("price_change_percentage_24h", 0) or 0
+            })
 
             if len(criptos) == 5:
                 break
@@ -224,9 +227,12 @@ def obtener_listado_criptos():
         criptos = []
 
         for coin in data_sorted:
-            criptos.append(
-                f"{coin['name']} ({coin['symbol'].upper()}): USD ${coin['current_price']:.2f}"
-            )
+            criptos.append({
+                "nombre": coin["name"],
+                "simbolo": coin["symbol"].upper(),
+                "precio": coin["current_price"],
+                "variacion": coin.get("price_change_percentage_24h", 0) or 0
+            })
 
         return criptos
     except Exception as e:
