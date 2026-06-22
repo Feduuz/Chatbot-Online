@@ -381,9 +381,9 @@ def obtener_riesgo_pais():
         # Formateo de fecha
         try:
             fecha_dt = datetime.fromisoformat(fecha.replace("Z", "+00:00"))
-            fecha_formateada = fecha_dt.strftime("%Y-%m-%d, %H:%M:%S")
+            fecha_formateada = fecha_dt.strftime("%Y-%m-%d")
         except Exception:
-                fecha_formateada = fecha
+            fecha_formateada = fecha
 
         return {
             "valor": valor,
