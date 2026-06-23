@@ -60,7 +60,7 @@ body.dark-mode::before {
   margin: 20px;
   display: flex;
   flex-direction: column;
-  width: 70%;
+  width: 75%;
   max-height: 75%;
   overflow-y: auto;
 }
@@ -219,8 +219,8 @@ body.dark-mode::before {
 }
 .main-header {
   position: fixed;
-  top: 20px;
-  right: 30px;
+  top: 15px;
+  right: 20px;
   z-index: 100;
 }
 /* From Uiverse.io by cuzpq */ 
