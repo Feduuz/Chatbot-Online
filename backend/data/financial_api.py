@@ -189,54 +189,6 @@ def obtener_top5_criptos():
     except Exception as e:
         return [f"Error al obtener datos de criptomonedas: {e}"]
 
-def obtener_listado_criptos():
-    try:
-        url = "https://api.coingecko.com/api/v3/coins/markets"
-        params = {
-            "vs_currency": "usd",
-            "order": "market_cap_desc",
-            "per_page": 20,
-            "page": 1,
-            "sparkline": "false"
-        }
-
-        response = requests.get(url, headers=headers, params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        # Ordenar alfabéticamente
-        data_sorted = sorted(data, key=lambda x: x['name'].lower())
-
-        stablecoins_excluidas = [
-            "usdt",
-            "usdc",
-            "usds",
-            "dai",
-        ]
-
-        data_filtrada = [
-            coin for coin in data
-            if coin["symbol"].lower() not in stablecoins_excluidas
-        ]
-
-        data_sorted = sorted(
-            data_filtrada,
-            key=lambda x: x["name"].lower()
-        )
-
-        criptos = []
-
-        for coin in data_sorted:
-            criptos.append({
-                "nombre": coin["name"],
-                "simbolo": coin["symbol"].upper(),
-                "precio": coin["current_price"],
-                "variacion": coin.get("price_change_percentage_24h", 0) or 0
-            })
-
-        return criptos
-    except Exception as e:
-        return [f"Error al obtener listado de criptomonedas: {e}"]
     
 def obtener_cuentas_remuneradas():
     url = "https://api.argentinadatos.com/v1/finanzas/fci/otros/ultimo"

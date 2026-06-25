@@ -3,7 +3,6 @@ import uuid
 from ..groq_client import consultar_groq
 from ..data.financial_api import (
     obtener_top5_criptos,
-    obtener_listado_criptos,
     obtener_tasas_plazofijo,
     obtener_top5_acciones,
     obtener_cuentas_remuneradas,
