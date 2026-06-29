@@ -13,7 +13,8 @@ from ..data.financial_api import (
     obtener_riesgo_pais_historico,
     obtener_indice_inflacion,
     obtener_indice_inflacion_interanual,
-    obtener_indice_uva
+    obtener_indice_uva,
+    obtener_letras_tesoro
 )
 
 def _agregar_boton_inicio(respuesta_actual):
@@ -576,12 +577,51 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
             <button class='option-btn' data-intent='Dolar_historico'>Dólar Histórico 💰</button>
             <button class='option-btn' data-intent='Uva'>Índice UVA 📅</button>
             <button class='option-btn' data-intent='Inflacion'>Inflación 📉</button>
+            <button class='option-btn' data-intent='Letras'>Letras 📜</button>
             <button class='option-btn' data-intent='Plazo fijo'>Plazo Fijo 🏦</button>
             <button class='option-btn' data-intent='Riesgo pais'>Riesgo País 📊</button>
             <button class='option-btn' data-intent='riesgo_pais_historico'>Riesgo País Histórico 🧾</button>
         </div>
         """
         return respuesta
+
+    elif intencion == "letras":
+
+        datos = obtener_letras_tesoro()
+
+        if not datos:
+            return "⚠️ No pude obtener la información de Letras del Tesoro."
+
+        respuesta = "<b>📄 Letras del Tesoro</b><br><br>"
+
+        respuesta += "<b>Actualmente existen:</b><br>"
+
+        orden = [
+            "LECAP",
+            "CER",
+            "BONCAP",
+            "Dólar Linked"
+        ]
+
+        for tipo in orden:
+            cantidad = datos["tipos"].get(tipo, 0)
+            respuesta += f"• {cantidad} {tipo}<br>"
+
+        respuesta += "<br><b>⏳ Próximos vencimientos</b><br><br>"
+
+        for letra in datos["vencimientos"]:
+            respuesta += (
+                f"<b>{letra['simbolo']}</b> "
+                f"({letra['fechaVencimiento']})<br>"
+            )
+
+        respuesta += "<br><b>📈 Letras con mayor rendimiento</b><br><br>"
+
+        for letra in datos["mayores_tem"]:
+            respuesta += (
+                f"<b>{letra['simbolo']}</b> "
+                f"{letra['tem']:.2f}% TEM<br>"
+            )
 
     elif intencion == "desconocido":
         respuesta_llm = consultar_groq(mensaje)

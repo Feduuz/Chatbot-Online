@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from datetime import datetime
 import yfinance as yf
+from collections import Counter
 
 load_dotenv()
 COINGECKO_API_KEY = os.getenv("COINGECKO_API_KEY")
@@ -451,3 +452,52 @@ def obtener_indice_uva():
     except Exception as e:
         print(f"⚠️ Error al obtener índice UVA: {e}")
         return None, None, None
+    
+def obtener_letras_tesoro():
+    url = "https://api.argentinadatos.com/v1/finanzas/letras"
+
+    try:
+        response = requests.get(
+            url,
+            verify=certifi.where(),
+            timeout=10
+        )
+        response.raise_for_status()
+
+        data = response.json()
+
+        if not isinstance(data, list):
+            return None
+
+        # Cantidad por tipo
+        tipos = Counter()
+
+        for letra in data:
+            tipo = letra.get("tipo", "Sin clasificar")
+            tipos[tipo] += 1
+
+
+        vencimientos = sorted(
+            data,
+            key=lambda x: x.get("fechaVencimiento", "")
+        )[:3]
+
+
+        mayores_tem = sorted(
+            [
+                l for l in data
+                if isinstance(l.get("tem"), (int, float))
+            ],
+            key=lambda x: x["tem"],
+            reverse=True
+        )[:3]
+
+        return {
+            "tipos": dict(tipos),
+            "vencimientos": vencimientos,
+            "mayores_tem": mayores_tem
+        }
+
+    except Exception as e:
+        print(f"⚠️ Error obteniendo Letras: {e}")
+        return None
