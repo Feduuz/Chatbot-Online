@@ -469,33 +469,41 @@ def obtener_letras_tesoro():
         if not isinstance(data, list):
             return None
 
-        # Cantidad por tipo
-        tipos = Counter()
-
-        for letra in data:
-            tipo = letra.get("tipo", "Sin clasificar")
-            tipos[tipo] += 1
-
+        cantidad_total = len(data)
 
         vencimientos = sorted(
             data,
             key=lambda x: x.get("fechaVencimiento", "")
         )[:3]
 
-
         mayores_tem = sorted(
             [
-                l for l in data
-                if isinstance(l.get("tem"), (int, float))
+                letra
+                for letra in data
+                if letra.get("tem") is not None
             ],
-            key=lambda x: x["tem"],
+            key=lambda x: float(x["tem"]),
             reverse=True
         )[:3]
 
         return {
-            "tipos": dict(tipos),
-            "vencimientos": vencimientos,
-            "mayores_tem": mayores_tem
+            "cantidad_total": cantidad_total,
+
+            "vencimientos": [
+                {
+                    "nombre": letra.get("ticker", "-"),
+                    "fecha": letra.get("fechaVencimiento", "-")
+                }
+                for letra in vencimientos
+            ],
+
+            "mayores_tem": [
+                {
+                    "nombre": letra.get("ticker", "-"),
+                    "tem": float(letra["tem"])
+                }
+                for letra in mayores_tem
+            ]
         }
 
     except Exception as e:

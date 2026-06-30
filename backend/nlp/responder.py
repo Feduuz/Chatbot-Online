@@ -564,6 +564,36 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         </script>
         """
 
+    elif intencion == "letras":
+
+        datos = obtener_letras_tesoro()
+
+        if not datos:
+            return "⚠️ No pude obtener la información de Letras del Tesoro."
+
+        respuesta = "<b>📄 Letras del Tesoro</b><br><br>"
+
+        respuesta += (
+            f"Actualmente hay <b>{datos['cantidad_total']}</b> "
+            "Letras del Tesoro disponibles.<br><br>"
+        )
+
+        respuesta += "<b>⏳ Próximos vencimientos</b><br><br>"
+
+        for letra in datos["vencimientos"]:
+            respuesta += (
+                f"• <b>{letra['nombre']}</b> "
+                f"({letra['fecha']})<br>"
+            )
+
+        respuesta += "<br><b>📈 Mayor rendimiento (TEM)</b><br><br>"
+
+        for letra in datos["mayores_tem"]:
+            respuesta += (
+                f"• <b>{letra['nombre']}</b> "
+                f"{letra['tem']:.2f}%<br>"
+            )
+
 
     elif intencion == "inicio" or "inicios" in mensaje:
         respuesta = f"""
@@ -584,44 +614,6 @@ def obtener_datos_financieros(intencion, mensaje, context=None, entities=None):
         </div>
         """
         return respuesta
-
-    elif intencion == "letras":
-
-        datos = obtener_letras_tesoro()
-
-        if not datos:
-            return "⚠️ No pude obtener la información de Letras del Tesoro."
-
-        respuesta = "<b>📄 Letras del Tesoro</b><br><br>"
-
-        respuesta += "<b>Actualmente existen:</b><br>"
-
-        orden = [
-            "LECAP",
-            "CER",
-            "BONCAP",
-            "Dólar Linked"
-        ]
-
-        for tipo in orden:
-            cantidad = datos["tipos"].get(tipo, 0)
-            respuesta += f"• {cantidad} {tipo}<br>"
-
-        respuesta += "<br><b>⏳ Próximos vencimientos</b><br><br>"
-
-        for letra in datos["vencimientos"]:
-            respuesta += (
-                f"<b>{letra['simbolo']}</b> "
-                f"({letra['fechaVencimiento']})<br>"
-            )
-
-        respuesta += "<br><b>📈 Letras con mayor rendimiento</b><br><br>"
-
-        for letra in datos["mayores_tem"]:
-            respuesta += (
-                f"<b>{letra['simbolo']}</b> "
-                f"{letra['tem']:.2f}% TEM<br>"
-            )
 
     elif intencion == "desconocido":
         respuesta_llm = consultar_groq(mensaje)
