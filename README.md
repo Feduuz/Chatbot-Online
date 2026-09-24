@@ -14,7 +14,7 @@ El chatbot permite consultar datos como inflación, dólar, acciones argentinas,
 ## 🚀 Características
 - Procesamiento de lenguaje natural (NLP)
 - Datos financieros en tiempo real
-- IA conversacional (LLM Groq)
+- IA conversacional (LLM OpenAI)
 - API REST
 - Interfaz web
 
@@ -29,7 +29,7 @@ Python y Flask
 HTML5, CSS3 y Javascript
 
 - NLP & AI:
-Groq (LLM)
+OpenAI (LLM)
 
 - API:
 Yahoo Finance y CoinGecko

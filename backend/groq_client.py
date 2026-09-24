@@ -16,7 +16,7 @@ a la información provista por las funciones del backend.
 def consultar_groq(mensaje):
     try:
         completion = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": mensaje}
